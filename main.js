@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Color } from 'three';
+import { Clock, Color } from 'three';
 
 
 
@@ -7,8 +7,11 @@ let scene
 let camera
 let renderer
 let sceneObjects = []
+let uniforms
+let clock = new Clock;
 
 async function init() {
+  clock.start();
   scene = new THREE.Scene();
   camera = new THREE.OrthographicCamera(0, 1, 1, 0, 0.1, 1000);
 
@@ -18,9 +21,14 @@ async function init() {
 
   camera.position.set(0, 0, 1)
 
+  uniforms = {
+    time: { value: clock.getElapsedTime() }
+  }
+
   await setUp()
   animate();
 }
+
 
 
 async function setUp() {
@@ -28,9 +36,7 @@ async function setUp() {
   const fsh = await fetch('fragShader.glsl');
 
   const material = new THREE.ShaderMaterial({
-    uniforms: {
-      time: {value: test.clock.getElapsedTime()},
-    },
+    uniforms: uniforms,
     vertexShader: await vsh.text(),
     fragmentShader: await fsh.text()
   });
@@ -49,12 +55,12 @@ function onWindowResize() {
 
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-
   renderer.setSize(window.innerWidth, window.innerHeight);
 
 }
 
 function animate() {
+  uniforms.time.value = clock.getElapsedTime();
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
 }
