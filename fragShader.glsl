@@ -2,7 +2,8 @@ varying vec2 vUvs;
 varying vec3 vNormal;
 varying vec3 vPosition;
 
- uniform vec3 size;
+uniform vec3 size;
+uniform float time;
 
 
 float inverseLerp(float v, float minValue, float maxValue) {
@@ -23,18 +24,17 @@ vec3 linearTosRGB(vec3 value ) {
 	return mix(v2, v1, lt);
 }
 
-   float edgeFactor(vec2 p){
-    	vec2 grid = abs(fract(p - 0.5) - 0.5) / fwidth(p) / 5.0;
+float edgeFactor(vec2 p){
+    	vec2 grid = abs(fract(p - 0.5) - 0.5) / fwidth(p) / 3.0;
   		return min(grid.x, grid.y);
-    }
+}
 
 
-uniform float time;
 
 void main() {
  vec3 baseColor;
  
- baseColor = vec3(0.5, 1.0, 0.0); 
+ baseColor = vec3(0.5, 1.0, vUvs.x); 
  
  
 vec3 lighting = vec3(0.0);
@@ -65,21 +65,15 @@ vec3 lighting = vec3(0.0);
 
   vec3 specular = vec3(phongValue);
 
-  lighting = ambient * 0.0 + hemi * 0.2 + diffuse * 0.8;
+  lighting = ambient * .5 + hemi * .5 + diffuse * .3;
 
   float a = edgeFactor(vUvs);
 
-    
-
   vec3 color = baseColor * lighting + specular;
- 
- 
 
   // color = linearTosRGB(color);
   color = pow(color, vec3(1.0 / 2.2));
-     baseColor = mix(vec3(1), color, a);
-
-
+  baseColor = mix(vec3(1), color, a);
 
   gl_FragColor = vec4(baseColor, 1.0);
 }
